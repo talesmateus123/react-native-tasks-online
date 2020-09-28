@@ -1,5 +1,8 @@
 import React, { Component } from 'react'
-import { View, Text, ImageBackground, StyleSheet, FlatList, TouchableOpacity, Platform } from 'react-native'
+import { 
+    View, Text, ImageBackground, StyleSheet, 
+    FlatList, TouchableOpacity, Platform 
+} from 'react-native'
 import Icon from 'react-native-vector-icons/FontAwesome'
 
 import commonStyles from '../commonStyles'
@@ -9,11 +12,13 @@ import moment from 'moment'
 import 'moment/locale/pt-br'
 
 import Task from '../components/Task'
+import AddTask from '../screens/AddTask'
 
 export default class TaskList extends Component {
 
     state = {
         showDoneTasks: true,
+        showAddTask: false,
         visibleTasks: [
 
         ],
@@ -66,6 +71,9 @@ export default class TaskList extends Component {
         const today = moment().locale('pt-br').format('ddd, D [de] MMMM')
         return (
             <View style={styles.container}>
+                <AddTask 
+                    isVisible={this.state.showAddTask}
+                    onCancel={() => this.setState({ showAddTask: false })} />
                 <ImageBackground source={todayImage} style={styles.background}>
                     <View style={styles.iconBar}>
                         <TouchableOpacity onPress={this.toogleFilter}>
@@ -89,6 +97,15 @@ export default class TaskList extends Component {
                         // renderItem={({item}) => <Task desc={item.desc} estimateAt={item.estimateAt} doneAt={item.doneAt} toggleTask={this.toggleTask} />}
                     />
                 </View>
+                <TouchableOpacity 
+                    onPress={() => this.setState({showAddTask: true})} 
+                    activeOpacity={0.7}
+                    style={styles.addButton} >
+                    <Icon 
+                        name='plus' 
+                        size={20} 
+                        color={commonStyles.colors.secundary} />
+                </TouchableOpacity>
             </View>
         )
     }
@@ -127,5 +144,16 @@ const styles = StyleSheet.create({
         marginHorizontal: 20,
         justifyContent: 'flex-end',
         marginTop: Platform.OS === 'ios' ? 40 : 10
+    },
+    addButton: {
+        position: 'absolute',
+        right: 30,
+        bottom: 30,
+        width: 50,
+        height: 50,
+        borderRadius: 25,
+        backgroundColor: commonStyles.colors.today,
+        justifyContent: 'center',
+        alignItems: 'center'
     }
 })
