@@ -40,7 +40,9 @@ export default class TaskList extends Component {
 
     loadTasks = async () => {
         try {
-            const maxDate = moment().format('YYYY-MM-DD 23:59:59')
+            const maxDate = moment()
+                .add({days: this.props.daysAhead})
+                .format('YYYY-MM-DD 23:59:59')
             const res = await axios.get(`${server}/tasks?date=${maxDate}`)
             this.setState({tasks: res.data}, this.filterTasks)
         }
@@ -114,6 +116,13 @@ export default class TaskList extends Component {
                     onSave={this.addTask} />
                 <ImageBackground source={todayImage} style={styles.background}>
                     <View style={styles.iconBar}>
+                        <TouchableOpacity onPress={() => this.props.navigation.openDrawer()}>
+                            <Icon 
+                                name='bars'
+                                size={20}
+                                color={commonStyles.colors.secundary}
+                            />
+                        </TouchableOpacity>
                         <TouchableOpacity onPress={this.toogleFilter}>
                             <Icon 
                                 name={this.state.showDoneTasks ? "eye" : "eye-slash"}
@@ -123,7 +132,7 @@ export default class TaskList extends Component {
                         </TouchableOpacity>
                     </View>
                     <View style={styles.titleBar}>
-                        <Text style={styles.title}>Hoje</Text>
+                        <Text style={styles.title}>{this.props.title}</Text>
                         <Text style={styles.subtitle}>{today}</Text>
                     </View>
                 </ImageBackground>
@@ -180,8 +189,8 @@ const styles = StyleSheet.create({
     iconBar: {
         flexDirection: 'row',
         marginHorizontal: 20,
-        justifyContent: 'flex-end',
-        marginTop: Platform.OS === 'ios' ? 40 : 10
+        justifyContent: 'space-between',
+        marginTop: Platform.OS === 'ios' ? 40 : 20
     },
     addButton: {
         position: 'absolute',
