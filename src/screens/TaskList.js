@@ -12,6 +12,9 @@ import todayImage from '../../assets/imgs/today.jpg'
 import moment from 'moment'
 import 'moment/locale/pt-br'
 
+import axios from 'axios'
+import { server, showError } from '../common'
+
 import Task from '../components/Task'
 import AddTask from '../screens/AddTask'
 
@@ -29,9 +32,21 @@ export default class TaskList extends Component {
     }
 
     componentDidMount = async () => {
-        const stateString = await AsyncStorage.getItem('state')
-        const state = JSON.parse(stateString) || initialState
-        this.setState(state, this.filterTasks)
+        const stateString = await AsyncStorage.getItem('taskState')
+        const savedState = JSON.parse(stateString) || initialState
+        this.setState({showDoneTasks: savedState.showDoneTasks}, this.filterTasks)
+        this.loadTasks()
+    }
+
+    loadTasks = async () => {
+        try {
+            const maxDate = moment().format('YYYY-MM-DD 23:59:59')
+            const res = await axios.get(`${server}/tasks?date=${maxDate}`)
+            this.setState({tasks: res.data}, this.filterTasks)
+        }
+        catch(e) {
+            showError(e)
+        }
     }
 
     toogleFilter = () => {
@@ -47,7 +62,7 @@ export default class TaskList extends Component {
             visibleTasks = this.state.tasks.filter(pending)
         }
         this.setState({ visibleTasks })
-        AsyncStorage.setItem('state', JSON.stringify(this.state))
+        AsyncStorage.setItem('taskState', JSON.stringify({showDoneTasks: this.state.showDoneTasks}))
     }
 
     toggleTask = id => {
